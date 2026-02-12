@@ -5,9 +5,7 @@ import 'package:glowguide/core/databases/api/end_points.dart';
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/core/services/service_locator.dart';
-import 'package:glowguide/features/clinics/data/models/admin_approve_reject_clinic_model.dart';
 import 'package:glowguide/features/clinics/data/models/clinic_model.dart';
-import 'package:glowguide/features/clinics/data/models/create_new_clinic_model.dart';
 import 'package:dio/dio.dart';
 
 class ClinicsRemoteDataSource {
@@ -28,7 +26,7 @@ class ClinicsRemoteDataSource {
     return data.map((json) => ClinicModel.fromJson(json)).toList();
   }
 
-  Future<CreateNewClinicModel> createNewClinic(
+  Future<void> createNewClinic(
     CreateNewClinicParams params,
   ) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
@@ -67,11 +65,9 @@ class ClinicsRemoteDataSource {
       isFormData: true,
       data: data,
     );
-
-    return CreateNewClinicModel();
   }
 
-  Future<AdminApproveRejectClinicModel> adminApproveRejectClinic({
+  Future<void> adminApproveRejectClinic({
     required AdminApproveRejectClinicParams params,
   }) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
@@ -82,7 +78,5 @@ class ClinicsRemoteDataSource {
       options: Options(headers: {"Authorization": "Bearer $accessKey"}),
       data: {"status": params.actionStatus},
     );
-
-    return AdminApproveRejectClinicModel();
   }
 }

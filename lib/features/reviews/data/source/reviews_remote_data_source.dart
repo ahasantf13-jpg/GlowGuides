@@ -4,9 +4,7 @@ import 'package:glowguide/core/databases/cache/cache_helper.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/core/services/service_locator.dart';
 import 'package:glowguide/features/clinics/data/models/clinic_model.dart';
-import 'package:glowguide/features/reviews/data/models/admin_approve_reject_review_model.dart';
 import 'package:glowguide/features/reviews/data/models/reviews_model.dart';
-import 'package:glowguide/features/reviews/data/models/write_review_model.dart';
 import 'package:glowguide/features/reviews/domain/entities/reviews_entity.dart';
 import 'package:dio/dio.dart';
 
@@ -15,9 +13,9 @@ class ReviewsRemoteDataSource {
 
   ReviewsRemoteDataSource({required this.api});
 
-  Future<WriteReviewModel> writeReview(WriteReviewParams params) async {
+  Future<void> writeReview(WriteReviewParams params) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
-    final response = await api.post(
+    await api.post(
       EndPoints.writeReview,
       options: Options(headers: {"Authorization": "Bearer $accessKey"}),
       data: {
@@ -26,7 +24,6 @@ class ReviewsRemoteDataSource {
         "text": params.reviewText,
       },
     );
-    return WriteReviewModel.fromJson(response);
   }
 
   Future<List<ReviewsModel>> getAllReviews() async {
@@ -59,7 +56,7 @@ class ReviewsRemoteDataSource {
     return data.map((json) => ReviewsModel.fromJson(json)).toList();
   }
 
-  Future<AdminApproveRejectReviewModel> adminApproveRejectReview({
+  Future<void> adminApproveRejectReview({
     required AdminApproveRejectReviewParams params,
   }) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
@@ -70,8 +67,6 @@ class ReviewsRemoteDataSource {
       options: Options(headers: {"Authorization": "Bearer $accessKey"}),
       data: {"status": params.actionStatus},
     );
-
-    return AdminApproveRejectReviewModel();
   }
 
   Future<List<ReviewsEntity>> adminGetAllReviews() async {

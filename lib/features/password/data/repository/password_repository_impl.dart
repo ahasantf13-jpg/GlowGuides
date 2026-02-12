@@ -1,11 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:glowguide/core/connections/network_info.dart';
-import 'package:glowguide/core/errors/failure.dart';
-import 'package:glowguide/core/errors/expentions.dart';
+import 'package:glowguide/core/errors/exceptions/app_exceptions.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/password/data/source/password_remote_data_source.dart';
 import 'package:glowguide/features/password/domain/entities/confirm_reset_password_entity.dart';
-import 'package:glowguide/features/password/domain/entities/new_password_entity.dart';
 import 'package:glowguide/features/password/domain/entities/reset_password_entity.dart';
 import 'package:glowguide/features/password/domain/repository/password_repository.dart';
 import 'package:dartz/dartz.dart';
@@ -28,10 +26,10 @@ class PasswordRepositoryImpl extends PasswordRepository {
         await remoteDataSource.resetPassword(params);
 
         return Right(ResetPasswordEntity(detail: "Success"));
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
-      } catch (e) {
-        return Left(Failure(errMessage: e.toString()));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -46,8 +44,10 @@ class PasswordRepositoryImpl extends PasswordRepository {
         final response = await remoteDataSource.confirmResetPassword(params);
 
         return Right(ConfirmResetPasswordEntity(tempToken: response.tempToken));
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.toString()));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -55,14 +55,16 @@ class PasswordRepositoryImpl extends PasswordRepository {
   }
 
   @override
-  Future<Either<Failure, NewPasswordEntity>> setNewPassword(
+  Future<Either<Failure, void>> setNewPassword(
       {required NewPasswordParams params}) async {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.setNewPassword(params);
-        return Right(NewPasswordEntity());
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.toString()));
+        return const Right(null);
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -77,10 +79,10 @@ class PasswordRepositoryImpl extends PasswordRepository {
         await remoteDataSource.resetPasswordByPassword(params);
 
         return const Right(null);
-      } on DioException catch (e) {
-        return Left(Failure(errMessage: e.toString()));
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.toString()));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));

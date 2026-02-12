@@ -41,7 +41,9 @@ class LocationsRemoteDataSource {
   Future<void> deleteLocation(DeleteLocationParams params) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
 
-    await api.delete("${EndPoints.getAllLocations}/${params.locationId}", null,
+    final String path = "${EndPoints.getAllLocations}/${params.locationId}";
+
+    await api.delete(path,
         options: Options(headers: {"Authorization": "Bearer $accessKey"}));
   }
 }

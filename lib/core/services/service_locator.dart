@@ -7,11 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt getIt = GetIt.instance;
 
-Future<void> setupServiceLocator() async {
-  final prefs = await SharedPreferences.getInstance();
-  getIt.registerSingleton<SharedPreferences>(prefs);
-  getIt.registerSingleton<CacheHelper>(
-    CacheHelper(prefs),
+Future<void> configureDependencies() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(() => prefs);
+  getIt.registerLazySingleton<CacheHelper>(
+    () => CacheHelper(getIt<SharedPreferences>()),
   );
 
   getIt.registerLazySingleton<NetworkInfo>(

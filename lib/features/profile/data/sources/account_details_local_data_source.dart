@@ -1,34 +1,53 @@
 import 'dart:convert';
-
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
-import 'package:glowguide/core/errors/expentions.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/error_model.dart';
 import 'package:glowguide/features/profile/data/models/account_details_model.dart';
 
 class AccountDetailsLocalDataSource {
   final CacheHelper cache;
-
-  static const String cachedAccountDetailsKey = "CachedAccountDetails";
+  static const String key = "CachedAccountDetails";
 
   AccountDetailsLocalDataSource({required this.cache});
 
-  /// SAVE
-  void cacheAccountDetails(AccountDetailsModel accountDetailsToCache) {
-    cache.save(
-      key: cachedAccountDetailsKey,
-      value: jsonEncode(accountDetailsToCache.toJson()),
-    );
+  void cacheAccountDetails(AccountDetailsModel accountDetailsToCache) async {
+    try {
+      final jsonList = accountDetailsToCache;
+
+      final jsonString = jsonEncode(jsonList);
+
+      final success = await cache.save(key, jsonString);
+
+      if (!success) {
+        throw const CacheWriteException(
+          ErrorModel(errorMessage: "Failed to cache posts"),
+        );
+      }
+    } catch (_) {
+      throw const CacheWriteException(
+        ErrorModel(errorMessage: "Failed to cache posts"),
+      );
+    }
   }
 
   /// GET
-  Future<AccountDetailsModel> getLastAccountDetails() async {
-    final jsonString = cache.get<String>(cachedAccountDetailsKey);
+  Future<List<dynamic>> getLastAccountDetails() async {
+    try {
+      final jsonString = cache.get<String>(key);
 
-    if (jsonString != null) {
-      return AccountDetailsModel.fromJson(
-        jsonDecode(jsonString),
+      if (jsonString == null) {
+        throw const CacheReadException(
+          ErrorModel(errorMessage: "No cached posts found"),
+        );
+      }
+
+      final List decoded = jsonDecode(jsonString);
+
+      return decoded;
+    } catch (_) {
+      throw const CacheReadException(
+        ErrorModel(errorMessage: "Failed to read cached posts"),
       );
-    } else {
-      throw CacheExeption(errorMessage: "No cached data found");
     }
   }
 }

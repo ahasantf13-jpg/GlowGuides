@@ -3,8 +3,6 @@ import 'package:glowguide/core/databases/api/end_points.dart';
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/core/services/service_locator.dart';
-import 'package:glowguide/features/offers/data/models/admin_approve_reject_offer_model.dart';
-import 'package:glowguide/features/offers/data/models/create_offer_model.dart';
 import 'package:glowguide/features/offers/data/models/get_all_offer_model.dart';
 import 'package:dio/dio.dart';
 
@@ -13,7 +11,7 @@ class OffersRemoteDataSource {
 
   OffersRemoteDataSource({required this.api});
 
-  Future<CreateOfferModel> createNewOffer(CreateOffersParams params) async {
+  Future<void> createNewOffer(CreateOffersParams params) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
 
     final data = FormData.fromMap({
@@ -33,8 +31,6 @@ class OffersRemoteDataSource {
       options: Options(headers: {"Authorization": "Bearer $accessKey"}),
       data: data,
     );
-
-    return CreateOfferModel();
   }
 
   Future<List<GetAllOfferModel>> getAllOffers() async {
@@ -50,7 +46,7 @@ class OffersRemoteDataSource {
     return data.map((json) => GetAllOfferModel.fromJson(json)).toList();
   }
 
-  Future<AdminApproveRejectOfferModel> adminApproveRejectOffer(
+  Future<void> adminApproveRejectOffer(
     AdminApproveRejectOffersParams params,
   ) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
@@ -60,7 +56,5 @@ class OffersRemoteDataSource {
       options: Options(headers: {"Authorization": "Bearer $accessKey"}),
       data: {"status": params.action},
     );
-
-    return AdminApproveRejectOfferModel();
   }
 }

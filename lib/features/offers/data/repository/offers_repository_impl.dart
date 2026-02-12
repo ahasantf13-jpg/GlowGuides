@@ -1,11 +1,10 @@
 import 'package:glowguide/core/connections/network_info.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/exceptions/app_exceptions.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/offers/data/source/offers_local_data_source.dart';
 import 'package:glowguide/features/offers/data/source/offers_remote_data_source.dart';
-import 'package:glowguide/features/offers/domain/entities/admin_approve_reject_offer_entity.dart';
-import 'package:glowguide/features/offers/domain/entities/create_offer_entity.dart';
 import 'package:glowguide/features/offers/domain/entities/get_all_offers_entities.dart';
 import 'package:glowguide/features/offers/domain/repository/offer_repository.dart';
 import 'package:dartz/dartz.dart';
@@ -22,7 +21,7 @@ class OffersRepositoryImpl extends OfferRepository {
   });
 
   @override
-  Future<Either<Failure, CreateOfferEntity>> createNewOffer({
+  Future<Either<Failure, void>> createNewOffer({
     required CreateOffersParams params,
   }) async {
     if (await networkInfo.isConnected) {
@@ -30,8 +29,10 @@ class OffersRepositoryImpl extends OfferRepository {
         final remoteOffer = await remoteDataSource.createNewOffer(params);
 
         return Right(remoteOffer);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -47,23 +48,24 @@ class OffersRepositoryImpl extends OfferRepository {
         localDataSource.cacheOffers(remoteOffers);
 
         return Right(remoteOffers);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       try {
         final localOffers = await localDataSource.getLastOffers();
 
         return Right(localOffers);
-      } on CacheExeption catch (e) {
-        return Left(Failure(errMessage: e.errorMessage));
+      } on CacheException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
       }
     }
   }
 
   @override
-  Future<Either<Failure, AdminApproveRejectOfferEntity>>
-  adminApproveRejectOffers({
+  Future<Either<Failure, void>> adminApproveRejectOffers({
     required AdminApproveRejectOffersParams params,
   }) async {
     if (await networkInfo.isConnected) {
@@ -73,8 +75,10 @@ class OffersRepositoryImpl extends OfferRepository {
         );
 
         return Right(approvAndReject);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));

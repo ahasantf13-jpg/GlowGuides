@@ -1,107 +1,103 @@
 import 'package:dio/dio.dart';
 import 'package:glowguide/core/databases/api/api_consumer.dart';
 import 'package:glowguide/core/databases/api/end_points.dart';
-import 'package:glowguide/core/errors/expentions.dart';
+import 'package:glowguide/core/errors/exceptions/dio_exceptions.dart';
 
 class DioConsumer extends ApiConsumer {
   final Dio dio;
 
   DioConsumer({required this.dio}) {
-    dio.options.baseUrl = EndPoints.baseUrl;
-    dio.options.connectTimeout = const Duration(seconds: 20);
-    dio.options.receiveTimeout = const Duration(seconds: 20);
+    dio.options
+      ..baseUrl = EndPoints.baseUrl
+      ..connectTimeout = const Duration(seconds: 10)
+      ..receiveTimeout = const Duration(seconds: 10)
+      ..responseType = ResponseType.json;
 
     dio.interceptors.add(
       LogInterceptor(
         request: true,
-        requestHeader: false,
+        requestHeader: true,
         requestBody: true,
-        responseHeader: false,
+        responseHeader: true,
         responseBody: true,
         error: true,
+        logPrint: (object) => print(object),
       ),
     );
   }
 
   @override
-  Future post(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    bool isFormData = false,
-    Options? options,
-  }) async {
+  Future<dynamic> get(String path,
+      {Object? data,
+      Map<String, dynamic>? queryParameters,
+      Options? options}) async {
     try {
-      var res = await dio.post(
+      final response = await dio.get(
         path,
-        data: isFormData ? FormData.fromMap(data) : data,
         queryParameters: queryParameters,
-        options: options,
+        data: data,
       );
-      return res.data;
+
+      return response.data;
     } on DioException catch (e) {
       handleDioException(e);
     }
   }
 
   @override
-  Future get(
-    String path, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+  Future<dynamic> post(String path,
+      {Object? data,
+      Map<String, dynamic>? queryParameters,
+      bool isFormData = false,
+      Options? options}) async {
     try {
-      var res = await dio.get(
+      final response = await dio.post(
+        path,
+        data:
+            isFormData ? FormData.fromMap(data as Map<String, dynamic>) : data,
+        queryParameters: queryParameters,
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
+
+  @override
+  Future<dynamic> patch(String path,
+      {Object? data,
+      Map<String, dynamic>? queryParameters,
+      bool isFormData = false,
+      Options? options}) async {
+    try {
+      final response = await dio.patch(
+        path,
+        data:
+            isFormData ? FormData.fromMap(data as Map<String, dynamic>) : data,
+        queryParameters: queryParameters,
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
+
+  @override
+  Future<dynamic> delete(String path,
+      {Object? data,
+      Map<String, dynamic>? queryParameters,
+      bool isFormData = false,
+      Options? options}) async {
+    try {
+      final response = await dio.delete(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: options,
       );
-      return res.data;
-    } on DioException catch (e) {
-      handleDioException(e);
-    }
-  }
 
-  @override
-  Future delete(
-    String path,
-    dynamic body, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    Object? data,
-  }) async {
-    try {
-      var res = await dio.delete(
-        path,
-        data: body,
-        queryParameters: queryParameters,
-        options: options,
-      );
-      return res.data;
-    } on DioException catch (e) {
-      handleDioException(e);
-      rethrow;
-    }
-  }
-
-  @override
-  Future patch(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool isFormData = false,
-  }) async {
-    try {
-      var res = await dio.patch(
-        path,
-        data: isFormData ? FormData.fromMap(data) : data,
-        queryParameters: queryParameters,
-        options: options,
-      );
-      return res.data;
+      return response.data;
     } on DioException catch (e) {
       handleDioException(e);
     }

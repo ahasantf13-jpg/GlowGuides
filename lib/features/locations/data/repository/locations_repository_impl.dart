@@ -1,6 +1,7 @@
 import 'package:glowguide/core/connections/network_info.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/exceptions/app_exceptions.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/locations/data/source/locations_local_data_source.dart';
 import 'package:glowguide/features/locations/data/source/locations_remote_data_source.dart';
@@ -28,16 +29,18 @@ class LocationsRepositoryImpl extends LocationsRepository {
         localDataSource.cacheLocations(remoteLocations);
 
         return Right(remoteLocations);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       try {
         final localLocations = await localDataSource.getLastLocations();
 
         return Right(localLocations);
-      } on CacheExeption catch (e) {
-        return Left(Failure(errMessage: e.errorMessage));
+      } on CacheException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
       }
     }
   }
@@ -50,8 +53,10 @@ class LocationsRepositoryImpl extends LocationsRepository {
         await remoteDataSource.addNewLocation(params);
 
         return const Right(null);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -66,8 +71,10 @@ class LocationsRepositoryImpl extends LocationsRepository {
         await remoteDataSource.deleteLocation(params);
 
         return const Right(null);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));

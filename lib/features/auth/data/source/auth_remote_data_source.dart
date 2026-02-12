@@ -2,7 +2,6 @@ import 'package:glowguide/core/databases/api/api_consumer.dart';
 import 'package:glowguide/core/databases/api/end_points.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/auth/data/models/login_model.dart';
-import 'package:glowguide/features/auth/data/models/sign_up_clinic_owner_model.dart';
 import 'package:dio/dio.dart';
 
 class AuthRemoteDataSource {
@@ -19,7 +18,7 @@ class AuthRemoteDataSource {
     return LoginModel.fromJson(response);
   }
 
-  Future<SignUpClinicOwnerModel> signupUser(SignupUserParams params) async {
+  Future<void> signupUser(SignupUserParams params) async {
     final Map<String, dynamic> data = {
       "fullname": params.fullName,
       "email": params.email,
@@ -44,12 +43,10 @@ class AuthRemoteDataSource {
       );
     }
 
-    final response = await api.post(
+    await api.post(
       EndPoints.signupUser,
       isFormData: true,
       data: data,
     );
-
-    return SignUpClinicOwnerModel.fromJson(response);
   }
 }

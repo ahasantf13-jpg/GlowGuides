@@ -1,4 +1,4 @@
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/features/profile/domain/entities/account_details_entity.dart';
 import 'package:glowguide/features/profile/domain/repos/account_details_repository.dart';
 import 'package:dartz/dartz.dart';

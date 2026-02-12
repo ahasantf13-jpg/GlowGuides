@@ -1,4 +1,4 @@
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/features/offers/domain/entities/get_all_offers_entities.dart';
 import 'package:glowguide/features/offers/domain/repository/offer_repository.dart';
 import 'package:dartz/dartz.dart';

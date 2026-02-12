@@ -1,33 +1,53 @@
 import 'dart:convert';
-
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/services/service_locator.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/error_model.dart';
 import 'package:glowguide/features/clinics/data/models/clinic_model.dart';
 
 class ClinicsLocalDataSource {
-  CacheHelper cache = getIt<CacheHelper>();
+  final CacheHelper cache;
   final String key = "cachedClinics";
 
   ClinicsLocalDataSource({required this.cache});
 
-  void cacheClinics(List<ClinicModel>? clinicsToCache) {
-    if (clinicsToCache != null) {
-      final jsonList = clinicsToCache.map((clinic) => clinic.toJson()).toList();
-      cache.save(key: key, value: jsonEncode(jsonList));
-    } else {
-      throw CacheExeption(errorMessage: "No Internet Connection!");
+  Future<void> cacheClinics(List<ClinicModel>? clinicsToCache) async {
+    try {
+      final jsonList = clinicsToCache?.map((e) => e.toString()).toList();
+
+      final jsonString = jsonEncode(jsonList);
+
+      final success = await cache.save(key, jsonString);
+
+      if (!success) {
+        throw const CacheWriteException(
+            ErrorModel(errorMessage: "Failed to cache posts"));
+      }
+    } catch (_) {
+      throw const CacheWriteException(
+        ErrorModel(errorMessage: "Failed to cache posts"),
+      );
     }
   }
 
   Future<List<ClinicModel>> getLastClinics() async {
-    final jsonString = cache.get(key);
+    try {
+      final jsonString = cache.get(key);
 
-    if (jsonString != null) {
-      final List decodedList = jsonDecode(jsonString) as List;
-      return decodedList.map((json) => ClinicModel.fromJson(json)).toList();
-    } else {
-      throw CacheExeption(errorMessage: "No Internet Connection!");
+      if (jsonString == null) {
+        throw const CacheReadException(
+          ErrorModel(errorMessage: "No cached posts found"),
+        );
+      }
+
+      final List decoded = jsonDecode(jsonString);
+
+      return decoded
+          .map((e) => ClinicModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (_) {
+      throw const CacheReadException(
+        ErrorModel(errorMessage: "Failed to read cached posts"),
+      );
     }
   }
 }

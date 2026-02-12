@@ -13,10 +13,10 @@ class NotificationModel extends NotificationEntity {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      notificationContent: json['content'] ?? '',
+      notificationContent: json['content'],
       createdAt: DateTime.parse(json['created_at']),
-      recipient: json['recipient'] ?? '',
-      createdBy: json['created_by'] ?? '',
+      recipient: json['recipient'],
+      createdBy: json['created_by'],
     );
   }
 

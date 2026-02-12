@@ -13,7 +13,7 @@ class DeleteAccountRemoteDataSource {
   Future<void> deleteAccount(DeleteAccountParams params) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
 
-    await api.delete(EndPoints.deleteAccount, null,
+    await api.delete(EndPoints.deleteAccount,
         options: Options(headers: {"Authorization": "Bearer $accessKey"}),
         data: {
           "email": params.email,

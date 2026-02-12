@@ -24,11 +24,9 @@ abstract class ApiConsumer {
     Options? options,
   });
 
-  Future<dynamic> delete(
-    String path,
-    param1, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  });
+  Future<dynamic> delete(String path,
+      {Object? data,
+      Map<String, dynamic>? queryParameters,
+      bool isFormData = false,
+      Options? options});
 }

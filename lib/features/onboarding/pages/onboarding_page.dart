@@ -34,7 +34,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 setState(() => currentPage = index);
 
                 if (index == 3) {
-                  getIt<CacheHelper>().save(key: "SeenOnboarding", value: true);
+                  getIt<CacheHelper>().save("SeenOnboarding", true);
 
                   Navigator.pushAndRemoveUntil(
                     context,

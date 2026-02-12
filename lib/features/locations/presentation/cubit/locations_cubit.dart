@@ -40,8 +40,8 @@ class LocationsCubit extends Cubit<LocationsStates> {
           final defaultLocation = defaultList.first;
 
           getIt<CacheHelper>().save(
-            key: ApiKey.mainLocation,
-            value: defaultLocation.address,
+            ApiKey.mainLocation,
+            defaultLocation.address,
           );
         }
       },

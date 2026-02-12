@@ -20,10 +20,9 @@ class ClinicsCubit extends Cubit<ClinicsState> {
 
     final failureOrGetClinics = await GetAllClinicsUsecase(
       repository: ClinicsRepositoryImpl(
-        networkInfo: getIt<NetworkInfo>(),
-        remoteDataSource: ClinicsRemoteDataSource(api: getIt<DioConsumer>()),
-        localDataSource: ClinicsLocalDataSource(cache: getIt<CacheHelper>()),
-      ),
+          networkInfo: getIt<NetworkInfo>(),
+          remoteDataSource: ClinicsRemoteDataSource(api: getIt<DioConsumer>()),
+          localDataSource: ClinicsLocalDataSource(cache: getIt<CacheHelper>())),
     ).call();
 
     failureOrGetClinics.fold(

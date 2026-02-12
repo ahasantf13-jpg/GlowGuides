@@ -1,6 +1,7 @@
 import 'package:glowguide/core/connections/network_info.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/exceptions/app_exceptions.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/notifications/data/source/notifications_local_data_source.dart';
 import 'package:glowguide/features/notifications/data/source/notifications_remote_data_source.dart';
@@ -22,24 +23,27 @@ class NotificationsRepositoryImpl extends NotificationRepository {
 
   @override
   Future<Either<Failure, List<NotificationEntity>>>
-  getCurrentUserNotifications() async {
+      getCurrentUserNotifications() async {
     if (await networkInfo.isConnected) {
       try {
         final remoteNotifications = await remoteDataSource.getNotifications();
 
-        localDataSource.cacheNotifications(remoteNotifications);
+        await localDataSource.cacheNotifications(remoteNotifications);
 
         return Right(remoteNotifications);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       try {
-        final localNotifications = await localDataSource.getLastNotifications();
+        final localNotifications =
+            await localDataSource.getCachedNotifications();
 
         return Right(localNotifications);
-      } on CacheExeption catch (e) {
-        return Left(Failure(errMessage: e.errorMessage));
+      } on CacheException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
       }
     }
   }
@@ -55,8 +59,10 @@ class NotificationsRepositoryImpl extends NotificationRepository {
         );
 
         return Right(postNotification);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connections!"));

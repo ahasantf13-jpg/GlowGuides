@@ -1,10 +1,9 @@
 import 'package:glowguide/core/connections/network_info.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/exceptions/app_exceptions.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/auth/data/source/auth_remote_data_source.dart';
 import 'package:glowguide/features/auth/domain/entities/login_entity.dart';
-import 'package:glowguide/features/auth/domain/entities/sign_up_clinic_owner_entity.dart';
 import 'package:glowguide/features/auth/domain/repos/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -24,9 +23,12 @@ class AuthRepositoryImpl extends AuthReposirory {
     if (await networkInfo.isConnected) {
       try {
         final loggedInUserDetails = await remoteDataSource.loginUser(params);
+
         return Right(loggedInUserDetails);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -34,15 +36,18 @@ class AuthRepositoryImpl extends AuthReposirory {
   }
 
   @override
-  Future<Either<Failure, SignUpClinicOwnerEntity>> signUpClinicOwner({
+  Future<Either<Failure, void>> signUpClinicOwner({
     required SignupUserParams params,
   }) async {
     if (await networkInfo.isConnected) {
       try {
         final signedUpClinicOwner = await remoteDataSource.signupUser(params);
+
         return Right(signedUpClinicOwner);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));

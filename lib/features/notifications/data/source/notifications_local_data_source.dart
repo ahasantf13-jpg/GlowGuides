@@ -1,30 +1,54 @@
 import 'dart:convert';
-
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/services/service_locator.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/error_model.dart';
 import 'package:glowguide/features/notifications/data/models/notification_model.dart';
 
 class NotificationsLocalDataSource {
-  CacheHelper cache = getIt<CacheHelper>();
+  final CacheHelper cache;
   final String key = "CachedNotifications";
 
   NotificationsLocalDataSource({required this.cache});
 
-  void cacheNotifications(List<NotificationModel> notifications) {
-    final encoded = jsonEncode(notifications.map((n) => n.toJson()).toList());
+  Future<void> cacheNotifications(List<NotificationModel> notifications) async {
+    try {
+      final jsonList = notifications.map((e) => e.toJson()).toList();
 
-    cache.save(key: key, value: encoded);
+      final jsonString = jsonEncode(jsonList);
+
+      final success = await cache.save(key, jsonString);
+
+      if (!success) {
+        throw const CacheWriteException(
+          ErrorModel(errorMessage: "Failed to cache posts"),
+        );
+      }
+    } catch (_) {
+      throw const CacheWriteException(
+        ErrorModel(errorMessage: "Failed to cache posts"),
+      );
+    }
   }
 
-  Future<List<NotificationModel>> getLastNotifications() {
-    final jsonString = cache.get(key);
+  Future<List<NotificationModel>> getCachedNotifications() async {
+    try {
+      final jsonString = cache.get<String>(key);
 
-    if (jsonString != null) {
+      if (jsonString == null) {
+        throw const CacheReadException(
+          ErrorModel(errorMessage: "No cached posts found"),
+        );
+      }
+
       final List decoded = jsonDecode(jsonString);
-      return Future.value(NotificationModel.fromJsonList(decoded));
-    } else {
-      throw CacheExeption(errorMessage: "No Cached Notifications!");
+
+      return decoded
+          .map((e) => NotificationModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (_) {
+      throw const CacheReadException(
+        ErrorModel(errorMessage: "Failed to read cached posts"),
+      );
     }
   }
 }

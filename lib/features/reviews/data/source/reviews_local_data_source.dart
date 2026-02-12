@@ -1,33 +1,55 @@
 import 'dart:convert';
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
-import 'package:glowguide/core/errors/expentions.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/error_model.dart';
 import 'package:glowguide/core/services/service_locator.dart';
 import 'package:glowguide/features/reviews/data/models/reviews_model.dart';
 
 class ReviewsLocalDataSource {
   CacheHelper cache = getIt<CacheHelper>();
-  final String cachedReviewsKey = "cachedReviews";
+  final String key = "cachedReviews";
 
   ReviewsLocalDataSource({required this.cache});
 
-  void cacheReviews(List<ReviewsModel>? reviewssToCache) {
-    if (reviewssToCache != null) {
-      final jsonList =
-          reviewssToCache.map((reviews) => reviews.toJson()).toList();
-      cache.save(key: cachedReviewsKey, value: jsonEncode(jsonList));
-    } else {
-      throw CacheExeption(errorMessage: "No Internet Connection!");
+  void cacheReviews(List<ReviewsModel> reviewssToCache) async {
+    try {
+      final jsonList = reviewssToCache.map((e) => e.toJson()).toList();
+
+      final jsonString = jsonEncode(jsonList);
+
+      final success = await cache.save(key, jsonString);
+
+      if (!success) {
+        throw const CacheWriteException(
+          ErrorModel(errorMessage: "Failed to cache posts"),
+        );
+      }
+    } catch (_) {
+      throw const CacheWriteException(
+        ErrorModel(errorMessage: "Failed to cache posts"),
+      );
     }
   }
 
   Future<List<ReviewsModel>> getLastReviews() async {
-    final jsonString = cache.get(cachedReviewsKey);
+    try {
+      final jsonString = cache.get<String>(key);
 
-    if (jsonString != null) {
-      final List decodedList = jsonDecode(jsonString) as List;
-      return decodedList.map((json) => ReviewsModel.fromJson(json)).toList();
-    } else {
-      throw CacheExeption(errorMessage: "No Internet Connection!");
+      if (jsonString == null) {
+        throw const CacheReadException(
+          ErrorModel(errorMessage: "No cached posts found"),
+        );
+      }
+
+      final List decoded = jsonDecode(jsonString);
+
+      return decoded
+          .map((e) => ReviewsModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (_) {
+      throw const CacheReadException(
+        ErrorModel(errorMessage: "Failed to read cached posts"),
+      );
     }
   }
 }

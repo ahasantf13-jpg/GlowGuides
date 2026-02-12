@@ -17,16 +17,16 @@ class GetAllOfferModel extends GetAllOffersEntities {
 
   factory GetAllOfferModel.fromJson(Map<String, dynamic> json) {
     return GetAllOfferModel(
-      offerID: json['id'] ?? '',
-      clinicID: json['cid'] ?? '',
-      clinicDetails: ClinicModel.fromJson(json['clinic'] ?? {}),
-      offerCategories: List<String>.from(json['categories_data'] ?? []),
-      offerImage: json['image'] ?? '',
-      startDate: json['start_date'] ?? '',
-      endDate: json['end_date'] ?? '',
-      isHidden: json['is_hidden'] ?? false,
-      status: json['status'] ?? '',
-      createdBy: json['created_by'] ?? '',
+      offerID: json['id'],
+      clinicID: json['cid'],
+      clinicDetails: ClinicModel.fromJson(json['clinic']),
+      offerCategories: List<String>.from(json['categories_data']),
+      offerImage: json['image'],
+      startDate: json['start_date'],
+      endDate: json['end_date'],
+      isHidden: json['is_hidden'],
+      status: json['status'],
+      createdBy: json['created_by'],
     );
   }
 

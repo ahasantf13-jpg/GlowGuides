@@ -5,7 +5,6 @@ import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/core/services/service_locator.dart';
 import 'package:glowguide/features/profile/data/models/account_details_model.dart';
 import 'package:dio/dio.dart';
-import 'package:glowguide/features/profile/data/models/update_profile_model.dart';
 
 class AccountDetailsRemoteDataSource {
   final ApiConsumer api;
@@ -26,7 +25,7 @@ class AccountDetailsRemoteDataSource {
     return AccountDetailsModel.fromJson(response);
   }
 
-  Future<UpdateProfileModel> updateProfile(UpdateProfileParams params) async {
+  Future<void> updateProfile(UpdateProfileParams params) async {
     final String accessKey = getIt<CacheHelper>().get(ApiKey.access);
 
     FormData formData = FormData();
@@ -64,7 +63,5 @@ class AccountDetailsRemoteDataSource {
         },
       ),
     );
-
-    return UpdateProfileModel(); // عدلها حسب الـ response
   }
 }

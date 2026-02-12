@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/password/domain/entities/confirm_reset_password_entity.dart';
 import 'package:glowguide/features/password/domain/repository/password_repository.dart';

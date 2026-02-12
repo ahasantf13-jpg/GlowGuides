@@ -1,36 +1,54 @@
 import 'dart:convert';
-
 import 'package:glowguide/core/databases/cache/cache_helper.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/services/service_locator.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/error_model.dart';
 import 'package:glowguide/features/locations/data/models/locations_model.dart';
 
 class LocationsLocalDataSource {
-  CacheHelper cache = getIt<CacheHelper>();
+  CacheHelper cache;
   final String key = "cachedLocations";
 
   LocationsLocalDataSource({required this.cache});
 
-  void cacheLocations(List<LocationsModel>? locationsToCache) {
-    if (locationsToCache != null) {
-      final jsonList =
-          locationsToCache.map((locations) => locations.toJson()).toList();
+  void cacheLocations(List<LocationsModel> locationsToCache) async {
+    try {
+      final jsonList = locationsToCache.map((e) => e.toJson()).toList();
 
-      cache.save(key: key, value: jsonEncode(jsonList));
-    } else {
-      throw CacheExeption(errorMessage: "No Internet Connection!");
+      final jsonString = jsonEncode(jsonList);
+
+      final success = await cache.save(key, jsonString);
+
+      if (!success) {
+        throw const CacheWriteException(
+          ErrorModel(errorMessage: "Failed to cache posts"),
+        );
+      }
+    } catch (_) {
+      throw const CacheWriteException(
+        ErrorModel(errorMessage: "Failed to cache posts"),
+      );
     }
   }
 
   Future<List<LocationsModel>> getLastLocations() async {
-    final jsonString = cache.get(key);
+    try {
+      final jsonString = cache.get<String>(key);
 
-    if (jsonString != null) {
-      final List decodedList = jsonDecode(jsonString) as List;
+      if (jsonString == null) {
+        throw const CacheReadException(
+          ErrorModel(errorMessage: "No cached posts found"),
+        );
+      }
 
-      return decodedList.map((json) => LocationsModel.fromJson(json)).toList();
-    } else {
-      throw CacheExeption(errorMessage: "No Internet Connection!");
+      final List decoded = jsonDecode(jsonString);
+
+      return decoded
+          .map((e) => LocationsModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (_) {
+      throw const CacheReadException(
+        ErrorModel(errorMessage: "Failed to read cached posts"),
+      );
     }
   }
 }

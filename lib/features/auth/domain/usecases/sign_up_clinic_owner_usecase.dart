@@ -1,6 +1,5 @@
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
-import 'package:glowguide/features/auth/domain/entities/sign_up_clinic_owner_entity.dart';
 import 'package:glowguide/features/auth/domain/repos/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -9,7 +8,7 @@ class SignUpClinicOwnerUsecase {
 
   SignUpClinicOwnerUsecase({required this.repository});
 
-  Future<Either<Failure, SignUpClinicOwnerEntity>> call({
+  Future<Either<Failure, void>> call({
     required SignupUserParams params,
   }) {
     return repository.signUpClinicOwner(params: params);

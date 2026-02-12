@@ -215,8 +215,8 @@ class _RateSelectorState extends State<RateSelector> {
                     selectedRating = starIndex;
 
                     getIt<CacheHelper>().save(
-                      key: "SelectedRating",
-                      value: selectedRating.toString(),
+                      "SelectedRating",
+                      selectedRating.toString(),
                     );
                   });
                 },

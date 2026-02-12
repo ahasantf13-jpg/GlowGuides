@@ -1,14 +1,13 @@
 import 'package:glowguide/core/connections/network_info.dart';
-import 'package:glowguide/core/errors/expentions.dart';
-import 'package:glowguide/core/errors/failure.dart';
+import 'package:glowguide/core/errors/exceptions/app_exceptions.dart';
+import 'package:glowguide/core/errors/exceptions/cache_exceptions.dart';
+import 'package:glowguide/core/errors/models/failure.dart';
 import 'package:glowguide/core/params/params.dart';
 import 'package:glowguide/features/clinics/domain/entities/clinic_entity.dart';
 import 'package:glowguide/features/reviews/data/models/reviews_model.dart';
 import 'package:glowguide/features/reviews/data/source/reviews_local_data_source.dart';
 import 'package:glowguide/features/reviews/data/source/reviews_remote_data_source.dart';
-import 'package:glowguide/features/reviews/domain/entities/admin_approve_reject_review_entity.dart';
 import 'package:glowguide/features/reviews/domain/entities/reviews_entity.dart';
-import 'package:glowguide/features/reviews/domain/entities/write_review_entity.dart';
 import 'package:glowguide/features/reviews/domain/repos/reviews_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -24,15 +23,17 @@ class ReviewsRepositoryImpl extends ReviewsRepository {
   });
 
   @override
-  Future<Either<Failure, WriteReviewEntity>> writeReiew({
+  Future<Either<Failure, void>> writeReiew({
     required WriteReviewParams params,
   }) async {
     if (await networkInfo.isConnected) {
       try {
         final writeReview = await remoteDataSource.writeReview(params);
         return Right(writeReview);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection"));
@@ -48,23 +49,24 @@ class ReviewsRepositoryImpl extends ReviewsRepository {
         localDataSource.cacheReviews(remoteReviews);
 
         return Right(remoteReviews);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       try {
         final localReviews = await localDataSource.getLastReviews();
 
         return Right(localReviews);
-      } on CacheExeption catch (e) {
-        return Left(Failure(errMessage: e.errorMessage));
+      } on CacheException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
       }
     }
   }
 
   @override
-  Future<Either<Failure, AdminApproveRejectReviewEntity>>
-  adimnApproveRejecrReview({
+  Future<Either<Failure, void>> adimnApproveRejecrReview({
     required AdminApproveRejectReviewParams params,
   }) async {
     if (await networkInfo.isConnected) {
@@ -73,8 +75,10 @@ class ReviewsRepositoryImpl extends ReviewsRepository {
           params: params,
         );
         return Right(response);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection"));
@@ -92,8 +96,10 @@ class ReviewsRepositoryImpl extends ReviewsRepository {
             .toList();
 
         return Right(entityList);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection"));
@@ -109,8 +115,10 @@ class ReviewsRepositoryImpl extends ReviewsRepository {
         final response = await remoteDataSource.getClinicByID(params: params);
 
         return Right(response);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       return Left(Failure(errMessage: "No Internet Connection!"));
@@ -127,18 +135,20 @@ class ReviewsRepositoryImpl extends ReviewsRepository {
           params: params,
         );
 
-        localDataSource.cacheReviews(remoteReviews as List<ReviewsModel>?);
+        localDataSource.cacheReviews(remoteReviews);
 
         return Right(remoteReviews);
-      } on ServerException catch (e) {
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on AppException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
+      } catch (_) {
+        return Left(Failure(errMessage: "Something went wrong!"));
       }
     } else {
       try {
         final localReviews = await localDataSource.getLastReviews();
         return Right(localReviews);
-      } on CacheExeption catch (e) {
-        return Left(Failure(errMessage: e.errorMessage));
+      } on CacheException catch (e) {
+        return Left(Failure(errMessage: e.error.errorMessage));
       }
     }
   }
