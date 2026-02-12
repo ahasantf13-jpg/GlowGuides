@@ -31,9 +31,18 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
   List<String> selectedCategories = [];
 
   Future<void> _pickOfferBanner() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _offerBanner = File(pickedFile.path));
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() => _offerBanner = File(pickedFile.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Please enable photo access in Settings')),
+        );
+      }
     }
   }
 

@@ -26,11 +26,18 @@ class _EditeProfileDetailsState extends State<EditeProfileDetails> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickProfileImage() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() {
-        _profileImage = File(picked.path);
-      });
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() => _profileImage = File(pickedFile.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Please enable photo access in Settings')),
+        );
+      }
     }
   }
 
@@ -187,7 +194,8 @@ class _EditeProfileDetailsState extends State<EditeProfileDetails> {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      title: const Text("Edit Details", style: AppTextStyles.paragraph02SemiBold),
+      title:
+          const Text("Edit Details", style: AppTextStyles.paragraph02SemiBold),
       actions: [
         GestureDetector(
           onTap: () => Navigator.pop(context),

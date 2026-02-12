@@ -36,16 +36,34 @@ final ImagePicker _picker = ImagePicker();
 
 class _AddNewClinicPageState extends State<AddNewClinicPage> {
   Future<void> _pickClinicLogo() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _clinicLogo = File(pickedFile.path));
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() => _clinicLogo = File(pickedFile.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Please enable photo access in Settings')),
+        );
+      }
     }
   }
 
   Future<void> _pickCommercialImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _clinicCommercialRegisteration = File(pickedFile.path));
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() => _clinicCommercialRegisteration = File(pickedFile.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Please enable photo access in Settings')),
+        );
+      }
     }
   }
 
@@ -228,7 +246,8 @@ class _AddNewClinicPageState extends State<AddNewClinicPage> {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      title: const Text("Add New Clinic", style: AppTextStyles.paragraph02SemiBold),
+      title: const Text("Add New Clinic",
+          style: AppTextStyles.paragraph02SemiBold),
       actions: [
         GestureDetector(
           onTap: () {
