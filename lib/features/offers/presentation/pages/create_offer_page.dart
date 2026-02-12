@@ -141,7 +141,7 @@ class _CreateOfferPageState extends State<CreateOfferPage> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text("Login"),
+                  : const Text("Create Offer"),
             ),
           ],
         );

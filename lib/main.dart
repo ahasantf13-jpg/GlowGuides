@@ -4,7 +4,6 @@ import 'package:glowguide/core/themes/app_theme.dart';
 import 'package:glowguide/core/widgets/custom_scaffold_messenger.dart';
 import 'package:glowguide/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:glowguide/features/clinics/presentation/cubit/clinics_cubit.dart';
-import 'package:glowguide/features/favorites/data/models/clinic_hive_model.dart';
 import 'package:glowguide/features/locations/presentation/cubit/locations_cubit.dart';
 import 'package:glowguide/features/offers/presentation/cubit/offers_cubit.dart';
 import 'package:glowguide/features/password/presentation/cubit/password_cubit.dart';
@@ -14,33 +13,13 @@ import 'package:glowguide/features/reviews/presentation/cubit/reviews_cubit.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await setupServiceLocator();
-  await Hive.initFlutter();
-
-  Hive.registerAdapter(ClinicHiveModelAdapter());
-  await Hive.openBox<ClinicHiveModel>('favoriteClinics');
+  await configureDependencies();
 
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => AuthCubit()),
-        BlocProvider(create: (context) => ClinicsCubit()),
-        BlocProvider(
-          create: (context) => AccountDetailsCubit(),
-        ),
-        BlocProvider(create: (context) => ReviewsCubit()),
-        BlocProvider(create: (context) => ReviewsClinicIDCubit()),
-        BlocProvider(create: (context) => OffersCubit()),
-        BlocProvider(create: (context) => LocationsCubit()),
-        BlocProvider(create: (context) => PasswordCubit()),
-      ],
-      child: MyApp(),
-    ),
+    MyApp(),
   );
 }
 
@@ -51,20 +30,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (_, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'glowguide',
-          theme: appTheme,
-          scaffoldMessengerKey: _scaffoldMessenger.messengerKey,
-          home: child,
-        );
-      },
-      child: const AuthLayout(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()),
+        BlocProvider(create: (context) => ClinicsCubit()..getAllClinics()),
+        BlocProvider(
+          create: (context) => AccountDetailsCubit()..fetchAccountDetails(),
+        ),
+        BlocProvider(create: (context) => ReviewsCubit()..getAllReviews()),
+        BlocProvider(create: (context) => ReviewsClinicIDCubit()),
+        BlocProvider(create: (context) => OffersCubit()..getAllOfferss()),
+        BlocProvider(create: (context) => LocationsCubit()..getAllLocations()),
+        BlocProvider(create: (context) => PasswordCubit()),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (_, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'glowguide',
+            theme: appTheme,
+            scaffoldMessengerKey: _scaffoldMessenger.messengerKey,
+            home: child,
+          );
+        },
+        child: const AuthLayout(),
+      ),
     );
   }
 }

@@ -15,10 +15,12 @@ class PostNotificationModel extends PostNotificaitonEntity {
 
   factory PostNotificationModel.fromJson(Map<String, dynamic> json) {
     return PostNotificationModel(
-      recipientId: json['recipient'],
-      content: json['content'],
-      createdById: json['created_by'],
-      createdAt: DateTime.parse(json['created_at']),
+      recipientId: json['recipient'] ?? "",
+      content: json['content'] ?? "",
+      createdById: json['created_by'] ?? "",
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
     );
   }
 

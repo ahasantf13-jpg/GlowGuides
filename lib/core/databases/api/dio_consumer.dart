@@ -21,7 +21,6 @@ class DioConsumer extends ApiConsumer {
         responseHeader: true,
         responseBody: true,
         error: true,
-        logPrint: (object) => print(object),
       ),
     );
   }
@@ -36,6 +35,7 @@ class DioConsumer extends ApiConsumer {
         path,
         queryParameters: queryParameters,
         data: data,
+        options: options,
       );
 
       return response.data;
@@ -56,6 +56,7 @@ class DioConsumer extends ApiConsumer {
         data:
             isFormData ? FormData.fromMap(data as Map<String, dynamic>) : data,
         queryParameters: queryParameters,
+        options: options,
       );
 
       return response.data;
@@ -75,6 +76,7 @@ class DioConsumer extends ApiConsumer {
         path,
         data:
             isFormData ? FormData.fromMap(data as Map<String, dynamic>) : data,
+        options: options,
         queryParameters: queryParameters,
       );
 
@@ -94,6 +96,7 @@ class DioConsumer extends ApiConsumer {
       final response = await dio.delete(
         path,
         data: data,
+        options: options,
         queryParameters: queryParameters,
       );
 

@@ -14,14 +14,14 @@ class LocationsModel extends LocationEntity {
 
   factory LocationsModel.fromJson(Map<String, dynamic> json) {
     return LocationsModel(
-      userID: json["uid"],
-      label: json["label"],
-      floor: json["floor"],
-      address: json["address"],
-      flat: json["flat"],
-      isDefault: json["is_default"],
+      userID: json["uid"] ?? "",
+      label: json["label"] ?? "",
+      floor: json["floor"] ?? "",
+      address: json["address"] ?? "",
+      flat: json["flat"] ?? "",
+      isDefault: json["is_default"] ?? false,
       phoneNumber: json["phone_number"] ?? "Unknown Phone Number",
-      locationID: json["id"],
+      locationID: json["id"] ?? "",
     );
   }
 

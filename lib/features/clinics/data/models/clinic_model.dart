@@ -19,21 +19,21 @@ class ClinicModel extends ClinicEntity {
 
   factory ClinicModel.fromJson(Map<String, dynamic> json) {
     return ClinicModel(
-      clinicId: json["id"],
-      clinicName: json["name"],
-      clinicDescription: json["description"],
-      clinicLocation: json["clocation"],
-      clinicPhoneNumber: json["phone_number"],
-      clinicEmail: json["email"],
+      clinicId: json["id"] ?? "",
+      clinicName: json["name"] ?? "",
+      clinicDescription: json["description"] ?? "",
+      clinicLocation: json["clocation"] ?? "",
+      clinicPhoneNumber: json["phone_number"] ?? "",
+      clinicEmail: json["email"] ?? "",
       clinicCategories: (json["categories_data"] as List? ?? [])
           .map((cat) => CategoryModel.fromJson(cat))
           .toList(),
-      clinicLogoUrl: json["clinic_logo"],
+      clinicLogoUrl: json["clinic_logo"] ?? "",
       clinicAverageRating: (json["average_rating"] ?? 0).toInt(),
       clinicRatingCount: (json["review_count"] ?? 0).toInt(),
-      clinicStatus: json["status"],
-      clinicOwnerId: json["created_by"],
-      clinicWhoAreWe: json["who_are_we"],
+      clinicStatus: json["status"] ?? "",
+      clinicOwnerId: json["created_by"] ?? "",
+      clinicWhoAreWe: json["who_are_we"] ?? "",
     );
   }
 

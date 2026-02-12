@@ -1,28 +1,12 @@
-import 'package:hive/hive.dart';
+import 'dart:convert';
 
-part 'clinic_hive_model.g.dart';
-
-@HiveType(typeId: 1)
-class ClinicHiveModel extends HiveObject {
-  @HiveField(0)
+class ClinicHiveModel {
   final String clinicId;
-
-  @HiveField(1)
   final String clinicName;
-
-  @HiveField(2)
   final String clinicLogoUrl;
-
-  @HiveField(3)
   final String clinicDescription;
-
-  @HiveField(4)
   final String clinicLocation;
-
-  @HiveField(5)
   final double clinicAverageRating;
-
-  @HiveField(6)
   final int clinicRatingCount;
 
   ClinicHiveModel({
@@ -34,4 +18,35 @@ class ClinicHiveModel extends HiveObject {
     required this.clinicAverageRating,
     required this.clinicRatingCount,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'clinicId': clinicId,
+      'clinicName': clinicName,
+      'clinicLogoUrl': clinicLogoUrl,
+      'clinicDescription': clinicDescription,
+      'clinicLocation': clinicLocation,
+      'clinicAverageRating': clinicAverageRating,
+      'clinicRatingCount': clinicRatingCount,
+    };
+  }
+
+  factory ClinicHiveModel.fromMap(Map<String, dynamic> map) {
+    return ClinicHiveModel(
+      clinicId: map['clinicId'] ?? '',
+      clinicName: map['clinicName'] ?? '',
+      clinicLogoUrl: map['clinicLogoUrl'] ?? '',
+      clinicDescription: map['clinicDescription'] ?? '',
+      clinicLocation: map['clinicLocation'] ?? '',
+      clinicAverageRating: (map['clinicAverageRating'] is int)
+          ? (map['clinicAverageRating'] as int).toDouble()
+          : (map['clinicAverageRating'] as num?)?.toDouble() ?? 0.0,
+      clinicRatingCount: map['clinicRatingCount'] ?? 0,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory ClinicHiveModel.fromJson(String source) =>
+      ClinicHiveModel.fromMap(json.decode(source));
 }

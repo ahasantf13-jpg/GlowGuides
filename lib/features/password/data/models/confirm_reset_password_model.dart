@@ -6,7 +6,8 @@ class ConfirmResetPasswordModel extends ConfirmResetPasswordEntity {
   /// Factory constructor to create a model from JSON
   factory ConfirmResetPasswordModel.fromJson(Map<String, dynamic> json) {
     return ConfirmResetPasswordModel(
-      tempToken: json['temp_token'] as String, // adjust key if API is different
+      tempToken:
+          json['temp_token'] as String? ?? "", // adjust key if API is different
     );
   }
 

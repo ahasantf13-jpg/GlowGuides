@@ -7,20 +7,19 @@ import 'package:glowguide/features/clinics/presentation/cubit/clinics_cubit.dart
 import 'package:glowguide/features/clinics/presentation/cubit/clinics_state.dart';
 import 'package:glowguide/features/clinics/presentation/pages/clinic_details_page.dart';
 import 'package:glowguide/features/favorites/data/models/clinic_hive_model.dart';
+import 'package:glowguide/features/favorites/data/services/favorites_services.dart';
 import 'package:glowguide/features/notifications/presentation/widgets/notifications_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+// Using SharedPreferences-based FavoritesService
 
 class UserFavoritesTab extends StatelessWidget {
   const UserFavoritesTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Box<ClinicHiveModel> favoritesBox = Hive.box<ClinicHiveModel>(
-      'favoriteClinics',
-    );
+    final favoritesService = FavoritesService();
 
     return Scaffold(
       body: SafeArea(
@@ -29,16 +28,11 @@ class UserFavoritesTab extends StatelessWidget {
           children: [
             _appBar(context),
             SizedBox(height: 20.h),
-
             Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: favoritesBox.listenable(),
-                builder: (context, Box<ClinicHiveModel> box, _) {
-                  final clinics = box.values.toList();
-
-                  if (clinics.isEmpty) {
-                    return _emptyState(context);
-                  }
+              child: ValueListenableBuilder<List<ClinicHiveModel>>(
+                valueListenable: favoritesService.favoritesNotifier,
+                builder: (context, clinics, _) {
+                  if (clinics.isEmpty) return _emptyState(context);
 
                   return ListView.separated(
                     padding: EdgeInsets.symmetric(
@@ -64,15 +58,18 @@ class UserFavoritesTab extends StatelessWidget {
                           ),
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
-                        onDismissed: (_) {
-                          box.delete(clinic.clinicId);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${clinic.clinicName} removed from favorites',
+                        onDismissed: (_) async {
+                          await favoritesService
+                              .removeFavorite(clinic.clinicId);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${clinic.clinicName} removed from favorites',
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          }
                         },
                         child: FavoriteClinicCard(clinic: clinic),
                       );
@@ -172,18 +169,18 @@ class _FavoriteClinicCardState extends State<FavoriteClinicCard>
   }
 
   void _toggleFavorite() {
-    final box = Hive.box<ClinicHiveModel>('favoriteClinics');
-    final isFav = box.containsKey(widget.clinic.clinicId);
+    final favoritesService = FavoritesService();
+    final isFav = favoritesService.isFavorite(widget.clinic.clinicId);
 
     if (isFav) {
-      box.delete(widget.clinic.clinicId);
+      favoritesService.removeFavorite(widget.clinic.clinicId);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.clinic.clinicName} removed from favorites'),
         ),
       );
     } else {
-      box.put(widget.clinic.clinicId, widget.clinic);
+      favoritesService.addFavorite(widget.clinic);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.clinic.clinicName} added to favorites'),
@@ -196,8 +193,8 @@ class _FavoriteClinicCardState extends State<FavoriteClinicCard>
 
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box<ClinicHiveModel>('favoriteClinics');
-    final isFav = box.containsKey(widget.clinic.clinicId);
+    final favoritesService = FavoritesService();
+    final isFav = favoritesService.isFavorite(widget.clinic.clinicId);
 
     return GestureDetector(
       onTap: () {
